@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <opencv.hpp>
+#include <time.h>
 
 #define SWAP(a,b,t) ((t)=(a), (a)=(b), (b)=(t))
 

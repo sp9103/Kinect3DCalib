@@ -11,11 +11,15 @@ public:
 	void OpenDataFile(char *filename, char mod);
 	void CloseDataFile();
 
-	void ReadData();
-	void WriteData();
+	void ReadData(BodyJoint *dst);
+	void WriteData(BodyJoint *src);
+
+	void ReadAllData();
+	void GetBodyData(BodyJoint *dst);
 
 private:
-
 	FILE *Datafp;
+
+	std::list<BodyJoint> BodyDatalist;
 };
 

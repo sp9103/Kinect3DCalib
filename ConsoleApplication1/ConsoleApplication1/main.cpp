@@ -3,6 +3,8 @@
 #include "BodyDataLoader.h"
 
 int main(){
+	BodyCalib Calib;
+	BodyDataLoader DataLoader;
 
 	return 0;
 }
