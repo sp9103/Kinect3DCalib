@@ -11,7 +11,10 @@ public:
 	void DataStore(cv::Point3f first, cv::Point3f second);
 
 	//RANSAC implement, num : ½ÃÇàÈ½¼ö
-	void CalcMatrix(int num, double threshold);
+	void CalcMatrix();
+
+	//Initialize
+	void InitParam(int LoopCount, float Threshold, int samplecount);
 
 	//Get Matrix
 	cv::Mat GetRMatrix();
@@ -24,6 +27,11 @@ private:
 	cv::Mat RMat;
 	cv::Mat TMat;
 	cv::Mat RTMat;
+
+	//Parameter
+	int m_N;							//number of loop count
+	float m_Threshold;					//inlier, outlier bound
+	int m_m;							//pick sample count
 
 	//Data set
 	std::vector<std::pair<cv::Point3f, cv::Point3f>> DataSet;

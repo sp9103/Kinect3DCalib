@@ -16,6 +16,12 @@ BodyCalib::~BodyCalib(void)
 	RTMat.release();
 }
 
+void BodyCalib::InitParam(int LoopCount, float Threshold, int samplecount){
+	m_N = LoopCount;
+	m_Threshold = Threshold;
+	m_m = samplecount;
+}
+
 void BodyCalib::DataStore(cv::Point3f first, cv::Point3f second){
 	std::pair<cv::Point3f, cv::Point3f> tDataPair;
 	tDataPair.first = first;
@@ -52,7 +58,7 @@ void BodyCalib::printMat(cv::Mat src){
 	}
 }
 
-void BodyCalib::CalcMatrix(int num, double threshold){
+void BodyCalib::CalcMatrix(){
 	int tLoopCount = 0;
 	int NumInlier = -1;
 	float averError;
@@ -66,7 +72,7 @@ void BodyCalib::CalcMatrix(int num, double threshold){
 
 	//RANSAC
 	while(1){
-		if(tLoopCount > num)		break;
+		if(tLoopCount > m_N)		break;
 
 		SelectRandomNum(DataIdx, DataSet.size());
 
@@ -80,7 +86,7 @@ void BodyCalib::CalcMatrix(int num, double threshold){
 		//M * X1 = X2. Calculate matrix M
 		tempM = X1.inv() * X2;
 
-		int InlierCount = CalcInlierCount(tempM, threshold, &averError);
+		int InlierCount = CalcInlierCount(tempM, m_Threshold, &averError);
 
 		if(NumInlier < InlierCount){
 			NumInlier = InlierCount;
