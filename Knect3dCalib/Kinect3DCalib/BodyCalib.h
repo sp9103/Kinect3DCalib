@@ -13,6 +13,13 @@ public:
 	//RANSAC implement, num : ½ÃÇàÈ½¼ö
 	void CalcMatrix(int num, double threshold);
 
+	//Get Matrix
+	cv::Mat GetRMatrix();
+	cv::Mat GetTMatrix();
+	cv::Mat GetRTMatrix();
+
+	//
+
 private:
 	cv::Mat RMat;
 	cv::Mat TMat;

@@ -172,3 +172,15 @@ void BodyCalib::DecomposeRTMat(){
 		TMat.at<float>(i,0) = RTMat.at<float>(i,4);
 	}
 }
+
+cv::Mat BodyCalib::GetRMatrix(){
+	return RMat.clone();
+}
+
+cv::Mat BodyCalib::GetTMatrix(){
+	return TMat.clone();
+}
+
+cv::Mat BodyCalib::GetRTMatrix(){
+	return RTMat.clone();
+}
