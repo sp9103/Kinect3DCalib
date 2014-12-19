@@ -28,24 +28,17 @@ void BodyCalib::DataStore(cv::Point3f first, cv::Point3f second){
 	tDataPair.second = second;
 
 	DataSet.push_back(tDataPair);
+
+
 }
 
-void BodyCalib::SelectRandomNum(int *dst, int sampleCount){
-	int selectedCount = 0;
+void BodyCalib::SelectRandomNum(int *randBox){
+	for(int i = 0; i < DataSet.size()/2; i++){
+		int tidx1 = rand()%DataSet.size();
+		int tidx2 = rand()%DataSet.size();\
+		int temp;
 
-	for(int i = 0; i < 4; i ++){
-		int rNum = rand() % sampleCount;
-
-		for(int j = 0; j < selectedCount; j++){
-			if(dst[j] == rNum){
-				i--;
-				selectedCount--;
-				break;
-			}
-		}
-
-		dst[selectedCount] = rNum;
-		selectedCount++;
+		SWAP(randBox[tidx1], randBox[tidx2], temp);
 	}
 }
 
@@ -63,28 +56,36 @@ void BodyCalib::CalcMatrix(){
 	int NumInlier = -1;
 	float averError;
 
-	int DataIdx[4];
-	cv::Mat X1, X2;
+	cv::Mat X1, X2, X1TX1;
 	cv::Mat tempM;
 	
-	X1.zeros(4,4, CV_32FC1);
-	X2.zeros(4,4, CV_32FC1);
+	X1.zeros(4,m_m, CV_32FC1);
+	X2.zeros(4,m_m, CV_32FC1);
+	X1TX1.zeros(m_m, m_m, CV_32FC1);
+
+	//RandBOx make
+	int *randBox = (int*)malloc(sizeof(int)*DataSet.size());
+	for(int i = 0; i < DataSet.size(); i++){
+		randBox[i] = i;
+	}
 
 	//RANSAC
 	while(1){
 		if(tLoopCount > m_N)		break;
 
-		SelectRandomNum(DataIdx, DataSet.size());
+		SelectRandomNum(randBox);
 
-		CreateMat(DataIdx, &X1, &X2);
+		CreateMat(randBox, &X1, &X2);
 		
+		X1TX1 = X1.t()*X1;
+		//////////////////////////////////////////////////////
 		//Determinat zero => can not calculate inverse function.
-		double tDet = cv::determinant(X1);
+		double tDet = cv::determinant(X1TX1);
 		if(abs(tDet) < 0.00001)
 			continue;
 
 		//M * X1 = X2. Calculate matrix M
-		tempM = X1.inv() * X2;
+		tempM =  X2 * X1TX1.inv()* X1.t();
 
 		int InlierCount = CalcInlierCount(tempM, m_Threshold, &averError);
 
@@ -98,12 +99,15 @@ void BodyCalib::CalcMatrix(){
 
 	X1.release();
 	X2.release();
+	X1TX1.release();
 
 	printf("RANSAC Complete!\n");
 	DecomposeRTMat();
 
 	//ERROR
 	printf("Average Error : %f cm\n", averError*100.f);
+
+	free(randBox);
 }
 
 void BodyCalib::CreateMat( int *idxarr, cv::Mat *Mat1, cv::Mat *Mat2 )
@@ -111,7 +115,7 @@ void BodyCalib::CreateMat( int *idxarr, cv::Mat *Mat1, cv::Mat *Mat2 )
 	cv::Point3f firstPoint, secondPoint;
 
 	//Matrix create
-	for(int i = 0; i < 4; i++){
+	for(int i = 0; i < m_m; i++){
 		firstPoint = DataSet.at(idxarr[i]).first;
 		secondPoint = DataSet.at(idxarr[i]).second;
 

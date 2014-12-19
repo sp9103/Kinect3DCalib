@@ -36,7 +36,7 @@ private:
 	//Data set
 	std::vector<std::pair<cv::Point3f, cv::Point3f>> DataSet;
 	//네개의 랜덤 인덱스 선택
-	void SelectRandomNum(int *dst, int sampleCount);
+	void SelectRandomNum(int *Box);
 
 	void printMat(cv::Mat src);
 
