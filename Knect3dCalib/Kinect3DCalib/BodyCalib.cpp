@@ -28,14 +28,12 @@ void BodyCalib::DataStore(cv::Point3f first, cv::Point3f second){
 	tDataPair.second = second;
 
 	DataSet.push_back(tDataPair);
-
-
 }
 
 void BodyCalib::SelectRandomNum(int *randBox){
 	for(int i = 0; i < DataSet.size()/2; i++){
 		int tidx1 = rand()%DataSet.size();
-		int tidx2 = rand()%DataSet.size();\
+		int tidx2 = rand()%DataSet.size();
 		int temp;
 
 		SWAP(randBox[tidx1], randBox[tidx2], temp);

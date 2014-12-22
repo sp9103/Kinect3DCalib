@@ -69,3 +69,7 @@ void BodyDataLoader::GetBodyData(BodyJoint *dst){
 	*dst  = *it;
 	BodyDatalist.pop_back();
 }
+
+int BodyDataLoader::GetDataCount(){
+	return BodyDatalist.size();
+}

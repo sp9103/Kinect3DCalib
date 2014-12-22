@@ -5,6 +5,8 @@
 #include <opencv.hpp>
 #include <time.h>
 
+#define USINGJOINT 7
+
 #define SWAP(a,b,t) ((t)=(a), (a)=(b), (b)=(t))
 
 typedef enum _JointType

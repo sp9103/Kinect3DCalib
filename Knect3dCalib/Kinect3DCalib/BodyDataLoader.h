@@ -16,6 +16,7 @@ public:
 
 	void ReadAllData();
 	void GetBodyData(BodyJoint *dst);
+	int GetDataCount();
 
 private:
 	FILE *Datafp;
