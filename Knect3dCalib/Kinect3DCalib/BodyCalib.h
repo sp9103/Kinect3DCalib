@@ -1,3 +1,10 @@
+/************************************************************************/
+/*USAGE :
+1. DataStore
+2. InitParam - LoopCount를 정하기 위해서 CalcLoopNUM을 사용할 수 있음
+3. CalcMatrix
+4. GetMatrix*/
+/************************************************************************/
 #include "define.h"
 
 class BodyCalib
@@ -15,6 +22,13 @@ public:
 
 	//Initialize
 	void InitParam(int LoopCount, float Threshold, int samplecount);
+
+	/*N 계산
+	p : target probability
+	alpha : inlier ratio
+	sampleCount : 
+	*/
+	int CalcLoopNUM(float p, float alpha, int samplecount);
 
 	//Get Matrix
 	cv::Mat GetRMatrix();

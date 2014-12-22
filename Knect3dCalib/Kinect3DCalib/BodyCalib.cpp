@@ -194,3 +194,7 @@ cv::Mat BodyCalib::GetTMatrix(){
 cv::Mat BodyCalib::GetRTMatrix(){
 	return RTMat.clone();
 }
+
+int BodyCalib::CalcLoopNUM(float p, float alpha, int samplecount){
+	return log(1.0f - p) / log(1.0f - pow(alpha, samplecount));
+}
