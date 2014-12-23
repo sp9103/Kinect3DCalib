@@ -2,3 +2,9 @@
 *.tlog
 *.lastbuildstate
 *.idb
+*.exe
+*.ilk
+*.obj
+*.log
+*.bin
+*.pdb

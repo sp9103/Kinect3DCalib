@@ -55,11 +55,13 @@ void BodyCalib::CalcMatrix(){
 	float averError;
 
 	cv::Mat X1, X2, X1TX1;
-	cv::Mat tempM;
+	cv::Mat tempM, tM1;
 	
-	X1.zeros(4,m_m, CV_32FC1);
-	X2.zeros(4,m_m, CV_32FC1);
-	X1TX1.zeros(m_m, m_m, CV_32FC1);
+	X1.zeros(m_m, 4, CV_32FC1);
+	X2.zeros(m_m, 1, CV_32FC1);
+	X1TX1.zeros(4, 4, CV_32FC1);
+	tempM.zeros(4, 4, CV_32FC1);
+	tM1.zeros(1,4, CV_32FC1);
 
 	//RandBOx make
 	int *randBox = (int*)malloc(sizeof(int)*DataSet.size());
@@ -73,17 +75,33 @@ void BodyCalib::CalcMatrix(){
 
 		SelectRandomNum(randBox);
 
-		CreateMat(randBox, &X1, &X2);
-		
-		X1TX1 = X1.t()*X1;
-		//////////////////////////////////////////////////////
-		//Determinat zero => can not calculate inverse function.
-		double tDet = cv::determinant(X1TX1);
-		if(abs(tDet) < 0.00001)
-			continue;
+		//Least Square solve - °¢ row º°·Î
+		for(int i = 0; i < 3; i++){
+			CreateMat(randBox, &X1, &X2, i);
+			X1TX1 = X1.t()*X1;
+			cv::transpose(X1TX1.inv(cv::DECOMP_SVD) * X1.t() * X2, tM1);
 
-		//M * X1 = X2. Calculate matrix M
-		tempM =  X2 * X1TX1.inv()* X1.t();
+			for(int j = 0; j < 4; j++){
+				tempM.at<float>(i,j) = tM1.at<float>(0,j);
+			}
+		}
+
+		tempM.at<float>(3,0) = 0.0f;
+		tempM.at<float>(3,1) = 0.0f;
+		tempM.at<float>(3,2) = 0.0f;
+		tempM.at<float>(3,3) = 1.0f;
+
+		//CreateMat(randBox, &X1, &X2);
+		//
+		//X1TX1 = X1.t()*X1;
+		////////////////////////////////////////////////////////
+		////Determinat zero => can not calculate inverse function.
+		//double tDet = cv::determinant(X1TX1);
+		//if(abs(tDet) < 0.00001)
+		//	continue;
+
+		////M * X1 = X2. Calculate matrix M
+		//tempM =  X2 * X1TX1.inv()* X1.t();
 
 		int InlierCount = CalcInlierCount(tempM, m_Threshold, &averError);
 
@@ -93,11 +111,15 @@ void BodyCalib::CalcMatrix(){
 		}
 
 		tLoopCount++;
+		printf("\n[%d] Loop complete!\n", tLoopCount);
+		printf("- Inlier count : %d\n", InlierCount);
+		printf("- Average Err : %fcm\n", averError*100.f);
 	}
 
 	X1.release();
 	X2.release();
-	X1TX1.release();
+	tempM.release();
+	tM1.release();
 
 	printf("RANSAC Complete!\n");
 	DecomposeRTMat();
@@ -108,7 +130,7 @@ void BodyCalib::CalcMatrix(){
 	free(randBox);
 }
 
-void BodyCalib::CreateMat( int *idxarr, cv::Mat *Mat1, cv::Mat *Mat2 )
+void BodyCalib::CreateMat( int *idxarr, cv::Mat *Mat1, cv::Mat *Mat2, int idx)
 {
 	cv::Point3f firstPoint, secondPoint;
 
@@ -117,15 +139,22 @@ void BodyCalib::CreateMat( int *idxarr, cv::Mat *Mat1, cv::Mat *Mat2 )
 		firstPoint = DataSet.at(idxarr[i]).first;
 		secondPoint = DataSet.at(idxarr[i]).second;
 
-		Mat1->at<float>(0,i) = firstPoint.x;
-		Mat1->at<float>(1,i) = firstPoint.y;
-		Mat1->at<float>(2,i) = firstPoint.z;
-		Mat1->at<float>(3,i) = 1.0f;
+		Mat1->at<float>(i,0) = firstPoint.x;
+		Mat1->at<float>(i,1) = firstPoint.y;
+		Mat1->at<float>(i,2) = firstPoint.z;
+		Mat1->at<float>(i,3) = 1.0f;
 
-		Mat2->at<float>(0,i) = secondPoint.x;
-		Mat2->at<float>(1,i) = secondPoint.y;
-		Mat2->at<float>(2,i) = secondPoint.z;
-		Mat2->at<float>(3,i) = 1.0f;
+		switch(idx){
+		case 0:
+			Mat2->at<float>(i,idx) = secondPoint.x;
+			break;
+		case 1:
+			Mat2->at<float>(i,idx) = secondPoint.y;
+			break;
+		case 2:
+			Mat2->at<float>(i,idx) = secondPoint.z;
+			break;
+		}
 	}
 }
 

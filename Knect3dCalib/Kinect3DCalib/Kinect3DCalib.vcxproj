@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\opencv\build\include;D:\opencv\build\include\opencv;D:\opencv\build\include\opencv2;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\opencv\build\x86\vc11\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv\build\include;C:\opencv\build\include\opencv;C:\opencv\build\include\opencv2;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opencv\build\x86\vc11\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -58,7 +58,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_highgui249d.lib;opencv_imgproc249d.lib;opencv_core249d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_highgui2410d.lib;opencv_imgproc2410d.lib;opencv_core2410d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
