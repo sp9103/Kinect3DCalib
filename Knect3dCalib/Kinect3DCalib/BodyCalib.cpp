@@ -31,12 +31,11 @@ void BodyCalib::DataStore(cv::Point3f first, cv::Point3f second){
 }
 
 void BodyCalib::SelectRandomNum(int *randBox){
-	for(int i = 0; i < DataSet.size()/2; i++){
-		int tidx1 = rand()%DataSet.size();
-		int tidx2 = rand()%DataSet.size();
+	for(int i = 0; i < DataSet.size(); i++){
+		int tidx = rand()%DataSet.size();
 		int temp;
 
-		SWAP(randBox[tidx1], randBox[tidx2], temp);
+		SWAP(randBox[i], randBox[tidx], temp);
 	}
 }
 
@@ -52,16 +51,22 @@ void BodyCalib::printMat(cv::Mat src){
 void BodyCalib::CalcMatrix(){
 	int tLoopCount = 0;
 	int NumInlier = -1;
-	float averError;
+	float averError, bestError = 999.f;
 
 	cv::Mat X1, X2, X1TX1;
 	cv::Mat tempM, tM1;
-	
-	X1.zeros(m_m, 4, CV_32FC1);
-	X2.zeros(m_m, 1, CV_32FC1);
-	X1TX1.zeros(4, 4, CV_32FC1);
-	tempM.zeros(4, 4, CV_32FC1);
-	tM1.zeros(1,4, CV_32FC1);
+
+	//X1.zeros(m_m, 4, CV_32FC1);
+	//X2.zeros(m_m, 1, CV_32FC1);
+	//X1TX1.zeros(4, 4, CV_32FC1);
+	//tempM.zeros(4, 4, CV_32FC1);
+	//tM1.zeros(1,4, CV_32FC1);
+
+	X1.create(m_m,4,CV_32FC1);
+	X2.create(m_m,1,CV_32FC1);
+	X1TX1.create(4,4,CV_32FC1);
+	tempM.create(4,4,CV_32FC1);
+	tM1.create(1,4,CV_32FC1);
 
 	//RandBOx make
 	int *randBox = (int*)malloc(sizeof(int)*DataSet.size());
@@ -105,15 +110,19 @@ void BodyCalib::CalcMatrix(){
 
 		int InlierCount = CalcInlierCount(tempM, m_Threshold, &averError);
 
-		if(NumInlier < InlierCount){
-			NumInlier = InlierCount;
-			RTMat = tempM;
+		if(NumInlier <= InlierCount){
+			if(averError*100.f < bestError){
+				NumInlier = InlierCount;
+				tempM.copyTo(RTMat);
+				bestError = averError*100.f;
+			}
 		}
 
 		tLoopCount++;
 		printf("\n[%d] Loop complete!\n", tLoopCount);
 		printf("- Inlier count : %d\n", InlierCount);
-		printf("- Average Err : %fcm\n", averError*100.f);
+		printf("- Average Err : %fcm\n\n", averError*100.f);
+		printMat(tempM);
 	}
 
 	X1.release();
@@ -121,11 +130,15 @@ void BodyCalib::CalcMatrix(){
 	tempM.release();
 	tM1.release();
 
-	printf("RANSAC Complete!\n");
-	DecomposeRTMat();
+	printf("\nRANSAC Complete!\n");
+	printf("Result Matri : \n");
+	printMat(RTMat);
+
+	//DecomposeRTMat();
 
 	//ERROR
-	printf("Average Error : %f cm\n", averError*100.f);
+	printf("Average Error : %f cm\n", bestError);
+	printf("Inlier Count : %d\n", NumInlier);
 
 	free(randBox);
 }
@@ -146,13 +159,13 @@ void BodyCalib::CreateMat( int *idxarr, cv::Mat *Mat1, cv::Mat *Mat2, int idx)
 
 		switch(idx){
 		case 0:
-			Mat2->at<float>(i,idx) = secondPoint.x;
+			Mat2->at<float>(i,0) = secondPoint.x;
 			break;
 		case 1:
-			Mat2->at<float>(i,idx) = secondPoint.y;
+			Mat2->at<float>(i,0) = secondPoint.y;
 			break;
 		case 2:
-			Mat2->at<float>(i,idx) = secondPoint.z;
+			Mat2->at<float>(i,0) = secondPoint.z;
 			break;
 		}
 	}
@@ -181,8 +194,8 @@ float BodyCalib::CalcDist(cv::Mat RT, int idx){
 	cv::Point3f x2 = DataSet.at(idx).second;
 
 	cv::Mat x1vec, x1vec_after;
-	x1vec.zeros(3,1, CV_32FC1);
-	x1vec_after.zeros(3,1, CV_32FC1);
+	x1vec.create(4,1, CV_32FC1);
+	x1vec_after.create(4,1, CV_32FC1);
 
 	x1vec.at<float>(0,0) = x1.x;
 	x1vec.at<float>(1,0) = x1.y;
@@ -192,8 +205,13 @@ float BodyCalib::CalcDist(cv::Mat RT, int idx){
 	//x1' = M*x1
 	x1vec_after = RT*x1vec;
 
+	cv::Point3f x1after;
+	x1after.x = x1vec_after.at<float>(0,0);
+	x1after.y = x1vec_after.at<float>(1,0);
+	x1after.z = x1vec_after.at<float>(2,0);
+
 	//Euclidean Distance
-	float tdist = sqrt(pow(x1vec.at<float>(0) - x2.x,2) + pow(x1vec.at<float>(1) - x2.y,2) + pow(x1vec.at<float>(2) - x2.z,2));
+	float tdist = sqrt(pow(x1after.x - x2.x,2) + pow(x1after.y - x2.y,2) + pow(x1after.z - x2.z,2));
 
 	x1vec.release();
 	x1vec_after.release();

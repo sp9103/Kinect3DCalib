@@ -13,10 +13,10 @@ BodyDataLoader::~BodyDataLoader(void)
 
 void BodyDataLoader::OpenDataFile(char *filename, char mod){
 	if(mod == 'w'){
-		Datafp = fopen(filename, "w");
+		Datafp = fopen(filename, "wb");
 	}
 	else if(mod == 'r'){
-		Datafp = fopen(filename, "w");
+		Datafp = fopen(filename, "rb");
 	}else{
 		printf("Invalid File Open mode!\n");
 		printf("-w : write mode\n");
@@ -47,13 +47,14 @@ void BodyDataLoader::WriteData(BodyJoint *src){
 
 void BodyDataLoader::ReadAllData(){
 	BodyJoint temp;
+	int i = 0;
 
-	while(1){
+	while(!feof(Datafp)){
 		ReadData(&temp);
 		BodyDatalist.push_back(temp);
 
-		if(feof(Datafp))
-			break;
+		/*if(feof(Datafp))
+			break;*/
 	}
 	printf("Data Load Complete!\n");
 }
