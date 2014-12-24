@@ -5,7 +5,7 @@
 #include <opencv.hpp>
 #include <time.h>
 
-#define USINGJOINT 7
+#define USINGJOINT 11
 
 #define SWAP(a,b,t) ((t)=(a), (a)=(b), (b)=(t))
 

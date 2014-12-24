@@ -68,7 +68,9 @@ void BodyDataLoader::GetBodyData(BodyJoint *dst){
 	std::list<BodyJoint>::iterator it;
 	it = BodyDatalist.begin();
 	*dst  = *it;
-	BodyDatalist.pop_back();
+	BodyDatalist.pop_front();
+	/**dst = *BodyDatalist.begin();
+	BodyDatalist.pop_front();*/
 }
 
 int BodyDataLoader::GetDataCount(){

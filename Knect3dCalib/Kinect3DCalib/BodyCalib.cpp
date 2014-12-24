@@ -83,6 +83,9 @@ void BodyCalib::CalcMatrix(){
 		//Least Square solve - °¢ row º°·Î
 		for(int i = 0; i < 3; i++){
 			CreateMat(randBox, &X1, &X2, i);
+
+			//printMat(X2);
+
 			X1TX1 = X1.t()*X1;
 			cv::transpose(X1TX1.inv(cv::DECOMP_SVD) * X1.t() * X2, tM1);
 
@@ -95,18 +98,6 @@ void BodyCalib::CalcMatrix(){
 		tempM.at<float>(3,1) = 0.0f;
 		tempM.at<float>(3,2) = 0.0f;
 		tempM.at<float>(3,3) = 1.0f;
-
-		//CreateMat(randBox, &X1, &X2);
-		//
-		//X1TX1 = X1.t()*X1;
-		////////////////////////////////////////////////////////
-		////Determinat zero => can not calculate inverse function.
-		//double tDet = cv::determinant(X1TX1);
-		//if(abs(tDet) < 0.00001)
-		//	continue;
-
-		////M * X1 = X2. Calculate matrix M
-		//tempM =  X2 * X1TX1.inv()* X1.t();
 
 		int InlierCount = CalcInlierCount(tempM, m_Threshold, &averError);
 
@@ -151,6 +142,8 @@ void BodyCalib::CreateMat( int *idxarr, cv::Mat *Mat1, cv::Mat *Mat2, int idx)
 	for(int i = 0; i < m_m; i++){
 		firstPoint = DataSet.at(idxarr[i]).first;
 		secondPoint = DataSet.at(idxarr[i]).second;
+
+		//printf("[%d]:[%f %f %f]\n", idxarr[i], firstPoint.x, firstPoint.y, firstPoint.z);
 
 		Mat1->at<float>(i,0) = firstPoint.x;
 		Mat1->at<float>(i,1) = firstPoint.y;
