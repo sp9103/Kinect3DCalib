@@ -55,7 +55,8 @@ private:
 	void printMat(cv::Mat src);
 
 	// ex. idx == 1 . first row 
-	void CreateMat(int *idxarr, cv::Mat *Mat1, cv::Mat *Mat2, int idx);
+	void CreateRefMat(int *idxarr, cv::Mat* Mat1);
+	void CreateTargetMat(int *idxarr, cv::Mat* Mat2, int idx);
 
 	// RT한 뒤 오차 반환
 	float CalcDist(cv::Mat RT, int idx);

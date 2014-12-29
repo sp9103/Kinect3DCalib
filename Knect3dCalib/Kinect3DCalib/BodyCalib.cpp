@@ -56,12 +56,6 @@ void BodyCalib::CalcMatrix(){
 	cv::Mat X1, X2, X1TX1;
 	cv::Mat tempM, tM1;
 
-	//X1.zeros(m_m, 4, CV_32FC1);
-	//X2.zeros(m_m, 1, CV_32FC1);
-	//X1TX1.zeros(4, 4, CV_32FC1);
-	//tempM.zeros(4, 4, CV_32FC1);
-	//tM1.zeros(1,4, CV_32FC1);
-
 	X1.create(m_m,4,CV_32FC1);
 	X2.create(m_m,1,CV_32FC1);
 	X1TX1.create(4,4,CV_32FC1);
@@ -79,10 +73,11 @@ void BodyCalib::CalcMatrix(){
 		if(tLoopCount > m_N)		break;
 
 		SelectRandomNum(randBox);
+		CreateRefMat(randBox, &X1);
 
-		//Least Square solve - °¢ row º°·Î
+		//Least Square solve - each row vectors
 		for(int i = 0; i < 3; i++){
-			CreateMat(randBox, &X1, &X2, i);
+			CreateTargetMat(randBox, &X2, i);
 
 			//printMat(X2);
 
@@ -132,36 +127,6 @@ void BodyCalib::CalcMatrix(){
 	printf("Inlier Count : %d\n", NumInlier);
 
 	free(randBox);
-}
-
-void BodyCalib::CreateMat( int *idxarr, cv::Mat *Mat1, cv::Mat *Mat2, int idx)
-{
-	cv::Point3f firstPoint, secondPoint;
-
-	//Matrix create
-	for(int i = 0; i < m_m; i++){
-		firstPoint = DataSet.at(idxarr[i]).first;
-		secondPoint = DataSet.at(idxarr[i]).second;
-
-		//printf("[%d]:[%f %f %f]\n", idxarr[i], firstPoint.x, firstPoint.y, firstPoint.z);
-
-		Mat1->at<float>(i,0) = firstPoint.x;
-		Mat1->at<float>(i,1) = firstPoint.y;
-		Mat1->at<float>(i,2) = firstPoint.z;
-		Mat1->at<float>(i,3) = 1.0f;
-
-		switch(idx){
-		case 0:
-			Mat2->at<float>(i,0) = secondPoint.x;
-			break;
-		case 1:
-			Mat2->at<float>(i,0) = secondPoint.y;
-			break;
-		case 2:
-			Mat2->at<float>(i,0) = secondPoint.z;
-			break;
-		}
-	}
 }
 
 int BodyCalib::CalcInlierCount(cv::Mat RT, float threshold, float *averError){
@@ -235,4 +200,43 @@ cv::Mat BodyCalib::GetRTMatrix(){
 
 int BodyCalib::CalcLoopNUM(float p, float alpha, int samplecount){
 	return log(1.0f - p) / log(1.0f - pow(alpha, samplecount));
+}
+
+// 'X1' = M*X2
+void BodyCalib::CreateRefMat(int *idxarr, cv::Mat* Mat1){
+	cv::Point3f firstPoint, secondPoint;
+
+	//Matrix create
+	for(int i = 0; i < m_m; i++){
+		firstPoint = DataSet.at(idxarr[i]).first;
+		secondPoint = DataSet.at(idxarr[i]).second;
+
+		Mat1->at<float>(i,0) = firstPoint.x;
+		Mat1->at<float>(i,1) = firstPoint.y;
+		Mat1->at<float>(i,2) = firstPoint.z;
+		Mat1->at<float>(i,3) = 1.0f;
+	}
+}
+
+// X1 = M * 'X2'
+void BodyCalib::CreateTargetMat(int *idxarr, cv::Mat* Mat2, int idx){
+	cv::Point3f firstPoint, secondPoint;
+
+	//Matrix create
+	for(int i = 0; i < m_m; i++){
+		firstPoint = DataSet.at(idxarr[i]).first;
+		secondPoint = DataSet.at(idxarr[i]).second;
+
+		switch(idx){
+		case 0:
+			Mat2->at<float>(i,0) = secondPoint.x;
+			break;
+		case 1:
+			Mat2->at<float>(i,0) = secondPoint.y;
+			break;
+		case 2:
+			Mat2->at<float>(i,0) = secondPoint.z;
+			break;
+		}
+	}
 }
