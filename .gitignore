@@ -8,3 +8,6 @@
 *.log
 *.bin
 *.pdb
+*.user
+*.filters
+BodyDataRecord/BodyDataRecord/BodyDataRecord.vcxproj
